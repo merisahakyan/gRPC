@@ -2,42 +2,43 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Grpc.Core;
-using GrpcTestApp.Controllers;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Grpc.Core;
 
-namespace GrpcTestApp
+namespace GrpcTestAppClient
 {
     public class Program
     {
-        const int Port = 50051;
         public static void Main(string[] args)
         {
             //CreateHostBuilder(args).Build().Run();
             try
             {
-                Server server = new Server
+                Channel channel = new Channel("127.0.0.1:50051", ChannelCredentials.Insecure);
+                var client = new AccountService.AccountServiceClient(channel);
+                EmployeeName empName = client.GetEmployeeName(new EmployeeNameRequest { EmpId = "1" });
+
+                if (empName == null || string.IsNullOrWhiteSpace(empName.FirstName) || string.IsNullOrWhiteSpace(empName.LastName))
                 {
-                    Services = { AccountService.BindService(new AccountsGrpc()) },
-                    Ports = { new ServerPort("localhost", Port, ServerCredentials.Insecure) }
-                };
-                server.Start();
-
-                Console.WriteLine("Accounts server listening on port " + Port);
-                Console.WriteLine("Press any key to stop the server...");
+                    Console.WriteLine("Employee not found.");
+                }
+                else
+                {
+                    Console.WriteLine($"The employee name is {empName.FirstName} {empName.LastName}.");
+                }
+                channel.ShutdownAsync().Wait();
+                Console.WriteLine("Press any key to exit...");
                 Console.ReadKey();
-
-                server.ShutdownAsync().Wait();
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Exception encountered: {ex}");
             }
-
         }
+
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
