@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Grpc.Core;
 using GrpcTestApp.Controllers;
+using Messages;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
@@ -21,7 +22,8 @@ namespace GrpcTestApp
             {
                 Server server = new Server
                 {
-                    Services = { AccountService.BindService(new AccountsGrpc()) },
+                    Services = { AccountService.BindService(new AccountsGrpc()),
+                                   EmployeeService.BindService(new EmployeeGrpc())},
                     Ports = { new ServerPort("localhost", Port, ServerCredentials.Insecure) }
                 };
                 server.Start();
