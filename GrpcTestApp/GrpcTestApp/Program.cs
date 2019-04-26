@@ -28,7 +28,7 @@ namespace GrpcTestApp
                 };
                 server.Start();
 
-                Console.WriteLine("Accounts server listening on port " + Port);
+                Console.WriteLine("Server listening on port " + Port);
                 Console.WriteLine("Press any key to stop the server...");
                 Console.ReadKey();
 
